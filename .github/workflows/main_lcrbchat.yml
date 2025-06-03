@@ -30,7 +30,15 @@ jobs:
        
      # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
      - name: Zip artifact for deployment
-       run: Compress-Archive -Path * -DestinationPath release.zip -Force
+       run: |
+         # Remove large folders that shouldn't be deployed
+         Remove-Item -Recurse -Force venv -ErrorAction SilentlyContinue
+         Remove-Item -Recurse -Force .git -ErrorAction SilentlyContinue  
+         Remove-Item -Recurse -Force node_modules -ErrorAction SilentlyContinue
+         Remove-Item -Recurse -Force __pycache__ -ErrorAction SilentlyContinue
+         Remove-Item -Recurse -Force .pytest_cache -ErrorAction SilentlyContinue
+         # Compress only the necessary files
+         Compress-Archive -Path * -DestinationPath release.zip -Force
      - name: Upload artifact for deployment jobs
        uses: actions/upload-artifact@v4
        with:
